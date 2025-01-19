@@ -17,8 +17,6 @@ import game.Utils.Timer;
 @todo:
 
 @right_now:
-    - github
-
 
 - user name "login"
 - matchmaking

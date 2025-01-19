@@ -2,9 +2,12 @@ package net;
 
 import game.Utils.ByteBuff;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
+import net.server.ServerInfo;
 
 public class NetUDP {
     public static InetAddress getInetAddress(String name) {
@@ -37,41 +40,30 @@ public class NetUDP {
         return socket;
     }
 
-    public static DatagramPacket createPacket(byte[] buff, int buff_size) {
-        DatagramPacket packet = new DatagramPacket(buff, buff_size);
-        return packet;
-    }
+    public static Packet receivePacket(DatagramSocket socket) {
+        Packet packet = null;
 
-
-    public static DatagramPacket createPacket(ByteBuff buff) {
-        buff.reset();
-        DatagramPacket packet = new DatagramPacket(buff.getBytes(), buff.getSize());
-        return packet;
-    }
-
-    public static DatagramPacket createPacket(byte[] buff, int buff_size, InetAddress addr, int port) {
-        DatagramPacket packet = new DatagramPacket(buff, buff_size, addr, port);
-        return packet;
-    }
-
-    public static DatagramPacket createPacket(ByteBuff buff, InetAddress addr, int port) {
-        buff.reset();
-        DatagramPacket packet = new DatagramPacket(buff.getBytes(), buff.getSize(), addr, port);
-        return packet;
-    }
-
-    public static void receivePacket(DatagramSocket socket, DatagramPacket packet) {
         try {
-            socket.receive(packet);
+            ByteBuff dataBuffer = new ByteBuff(ServerInfo.PACKET_BUFFER_SIZE);
+            DatagramPacket datagramPacket = new DatagramPacket(dataBuffer.getBytes(), dataBuffer.getSize());
+            socket.receive(datagramPacket);
+
+            InetAddress address = datagramPacket.getAddress();
+            int port = datagramPacket.getPort();
+            packet = new Packet(dataBuffer, address, port);
         }catch (Exception e) {
             e.printStackTrace();
         }
+
+        return packet;
     }
 
-    public static void sendPacket(DatagramSocket socket, DatagramPacket packet) {
+    public static void sendPacket(DatagramSocket socket, Packet packet, InetAddress address, int port) {
+        DatagramPacket datagramPacket = new DatagramPacket(packet.getBytes(), packet.getSize(), address, port);
+
         try {
-            socket.send(packet);
-        }catch (Exception e) {
+            socket.send(datagramPacket);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

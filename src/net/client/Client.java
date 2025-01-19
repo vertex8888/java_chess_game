@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.util.Random;
 
 import net.NetUDP;
+import net.Packet;
 import net.server.ServerInfo;
 import net.server.ServerPacket;
 
@@ -40,71 +41,40 @@ public class Client {
     }
 
     public void makeConnection() {
-        ByteBuff packetBuff = ClientPacket.makeConnection();
-        DatagramPacket packet = NetUDP.createPacket(packetBuff, serverAddress, serverPort);
-        NetUDP.sendPacket(socket, packet);
+        NetUDP.sendPacket(socket, ClientPacket.makeConnection(), serverAddress, serverPort);
     }
 
     public void pingServer() {
-        ByteBuff packetBuff = ClientPacket.checkPing();
-        DatagramPacket packet = NetUDP.createPacket(packetBuff, serverAddress, serverPort);
-        NetUDP.sendPacket(socket, packet);
+        NetUDP.sendPacket(socket, ClientPacket.checkPing(), serverAddress, serverPort);
     }
 
     public void sendMove(PlayerMove move) {
-        ByteBuff outBuff = ClientPacket.move(move);
-        DatagramPacket outPacket = NetUDP.createPacket(outBuff, serverAddress, serverPort);
-        NetUDP.sendPacket(socket, outPacket);
+        NetUDP.sendPacket(socket, ClientPacket.move(move), serverAddress, serverPort);
     }
 
-    public void processCurrentPacket(DatagramPacket currentPacket) {
+    public void processCurrentPacket(Packet currentPacket) {
         if(!gotConnection) {
-            ByteBuff packetBuff = new ByteBuff(currentPacket.getData(), ServerInfo.PACKET_BUFFER_SIZE);
-            int packetType = packetBuff.readInt();
-
-            assert(packetType == ServerPacket.SERVER_PACKET_TYPE_CONNECTION_OK);
+            assert(currentPacket.type == ServerPacket.SERVER_PACKET_TYPE_CONNECTION_OK);
             Log.print("[Client] -> Server connection ok...\n");
 
             gotConnection = true;
+            return;
         }
 
-        ByteBuff packetBuff = new ByteBuff(currentPacket.getData(), ServerInfo.PACKET_BUFFER_SIZE);
-        int packetType = packetBuff.readInt();
-
-        switch (packetType) {
+        switch (currentPacket.type) {
             case ServerPacket.SERVER_PACKET_TYPE_PING_OK: {
             } break;
             case ServerPacket.SERVER_PACKET_TYPE_PLAYER_TURN: {
                 gotTurn = true;
                 shouldUpdateBoard = true;
-
-                for(int y = 0; y < 8; y += 1) {
-                    for(int x = 0; x < 8; x += 1) {
-                        int color = packetBuff.readInt();
-                        int type  = packetBuff.readInt();
-
-                        Piece piece = null;
-                        if(color != -1 && type != -1) piece = new Piece(color, type);
-                        board[y][x] = piece;
-                    }
-                }
+                board = ServerPacket.playerTurn(currentPacket);
             } break;
             case ServerPacket.SERVER_PACKET_TYPE_PLAYER_MOVE_OK: {
                 shouldUpdateBoard = true;
-
-                for(int y = 0; y < 8; y += 1) {
-                    for(int x = 0; x < 8; x += 1) {
-                        int color = packetBuff.readInt();
-                        int type  = packetBuff.readInt();
-
-                        Piece piece = null;
-                        if(color != -1 && type != -1) piece = new Piece(color, type);
-                        board[y][x] = piece;
-                    }
-                }
+                board = ServerPacket.playerMoveOk(currentPacket);
             } break;
             case ServerPacket.SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN: {
-                pieceColor = packetBuff.readInt();
+                pieceColor = ServerPacket.playerColorAssign(currentPacket);
             } break;
         }
     }

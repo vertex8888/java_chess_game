@@ -12,6 +12,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Random;
 
+import net.Packet;
+
+import game.PlayerMove;
+
 class ClientInfo {
     String userName;
     InetAddress address;
@@ -69,25 +73,18 @@ class Server  {
         board = clasicBoard;
     }
 
-    void processCurrentPacket(DatagramPacket currentPacket) {
+    void processCurrentPacket(Packet currentPacket) {
 
-        InetAddress packetAddress = currentPacket.getAddress();
-        int         packetPort    = currentPacket.getPort();
+        InetAddress packetAddress = currentPacket.address;
+        int         packetPort    = currentPacket.port;
         String      clientName    = String.format("%s:%d", packetAddress.getHostAddress(), packetPort);
 
-        ByteBuff currentPacketBuff = new ByteBuff(currentPacket.getData(), ServerInfo.PACKET_BUFFER_SIZE);
-        int packetType = currentPacketBuff.readInt();
-
-        switch(packetType) {
+        switch(currentPacket.type) {
             case ClientPacket.CLIENT_PACKET_TYPE_MAKE_CONNECTION: {
 
                 Log.print("[Server] -> Client["+clientName+"] attempting connection...\n");
 
-                {
-                    ByteBuff outBuff = ServerPacket.connectionOk();
-                    DatagramPacket outPacket = NetUDP.createPacket(outBuff, packetAddress, packetPort);
-                    NetUDP.sendPacket(socket, outPacket);
-                };
+                NetUDP.sendPacket(socket, ServerPacket.connectionOk(), packetAddress, packetPort);
 
                 clients[connectedClientsCount] = new ClientInfo(packetAddress, packetPort);
                 connectedClientsCount += 1;
@@ -100,54 +97,32 @@ class Server  {
                     whiteClient.pieceColor = Piece.COLOR_WHITE;
                     blackClient.pieceColor = Piece.COLOR_BLACK;
 
-                    // send players their respective colors
-                    {
-                        ByteBuff outBuff = ServerPacket.playerColorAssign(Piece.COLOR_WHITE);
-                        DatagramPacket outPacket = NetUDP.createPacket(outBuff, whiteClient.address, whiteClient.port);
-                        NetUDP.sendPacket(socket, outPacket);
 
-                        outBuff = ServerPacket.playerColorAssign(Piece.COLOR_BLACK);
-                        outPacket = NetUDP.createPacket(outBuff, blackClient.address, blackClient.port);
-                        NetUDP.sendPacket(socket, outPacket);
-                    };
-
-                    // Send playerTurn packet to white player
-                    {
-                        ByteBuff outBuff = ServerPacket.playerTurn(board);
-                        DatagramPacket outPacket = NetUDP.createPacket(outBuff, whiteClient.address, whiteClient.port);
-                        NetUDP.sendPacket(socket, outPacket);
-                    };
+                    NetUDP.sendPacket(socket, ServerPacket.playerColorAssign(Piece.COLOR_WHITE), whiteClient.address, whiteClient.port);
+                    NetUDP.sendPacket(socket, ServerPacket.playerColorAssign(Piece.COLOR_BLACK), blackClient.address, blackClient.port);
+                    NetUDP.sendPacket(socket, ServerPacket.playerTurn(board), whiteClient.address, whiteClient.port);
                 }
             } break;
             case ClientPacket.CLIENT_PACKET_TYPE_CHECK_PING: {
-
-                ByteBuff outBuff = ServerPacket.pingOk();
-                DatagramPacket outPacket = NetUDP.createPacket(outBuff, packetAddress, packetPort);
-                NetUDP.sendPacket(socket, outPacket);
+                NetUDP.sendPacket(socket, ServerPacket.pingOk(), packetAddress, packetPort);
             } break;
             case ClientPacket.CLIENT_PACKET_TYPE_MOVE: {
                 movesPlayedCount += 1;
                 Log.print("[Server] -> Client["+clientName+"] executed move "+movesPlayedCount+"...\n");
 
-                int moveFromX = currentPacketBuff.readInt();
-                int moveFromY = currentPacketBuff.readInt();
-                int moveToX   = currentPacketBuff.readInt();
-                int moveToY   = currentPacketBuff.readInt();
+                PlayerMove move = ClientPacket.move(currentPacket);
 
-                board[moveToY][moveToX] = board[moveFromY][moveFromX];
-                board[moveFromY][moveFromX] = null;
+                board[move.toY][move.toX] = board[move.fromY][move.fromX];
+                board[move.fromY][move.fromX] = null;
 
                 {
                     ClientInfo currClient = clients[currentClientTurn];
-                    NetUDP.sendPacket(socket, NetUDP.createPacket(ServerPacket.playerMoveOk(board), currClient.address, currClient.port));
+                    NetUDP.sendPacket(socket, ServerPacket.playerMoveOk(board), currClient.address, currClient.port);
                 };
 
                 currentClientTurn = (currentClientTurn + 1)%2;
-
                 ClientInfo currentClientOnTurn = clients[currentClientTurn];
-                ByteBuff outBuff = ServerPacket.playerTurn(board);
-                DatagramPacket outPacket = NetUDP.createPacket(outBuff, currentClientOnTurn.address, currentClientOnTurn.port);
-                NetUDP.sendPacket(socket, outPacket);
+                NetUDP.sendPacket(socket, ServerPacket.playerTurn(board), currentClientOnTurn.address, currentClientOnTurn.port);
 
             } break;
         }

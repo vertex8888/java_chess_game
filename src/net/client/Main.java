@@ -7,6 +7,8 @@ import net.PacketListener;
 import java.awt.*;
 import java.net.DatagramPacket;
 
+import net.Packet;
+
 import game.Game;
 import game.Utils.FSM;
 import game.Utils.Log;
@@ -31,7 +33,7 @@ public class Main {
 
             Input.poll();
 
-            DatagramPacket currentPacket = null;
+            Packet currentPacket = null;
             if(!packetListener.isAlive()) {
                 currentPacket = packetListener.getCurrentPacket();
                 packetListener = new PacketListener(client.socket);

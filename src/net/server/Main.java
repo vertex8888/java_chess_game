@@ -4,9 +4,9 @@ import game.FrameControl;
 import game.Renderer;
 import game.Window;
 import net.PacketListener;
+import net.Packet;
 
 import java.awt.*;
-import java.net.DatagramPacket;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,11 +19,10 @@ public class Main {
         PacketListener packetListener = new PacketListener(server.socket);
         packetListener.start();
 
-
         while(true) {
             FrameControl.sync(120);
 
-            DatagramPacket currentPacket = null;
+            Packet currentPacket = null;
             if(!packetListener.isAlive()) {
                 currentPacket = packetListener.getCurrentPacket();
                 packetListener = new PacketListener(server.socket);
