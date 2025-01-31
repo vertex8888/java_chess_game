@@ -1,5 +1,7 @@
 package game;
 
+import java.util.ArrayList;
+
 public class Input {
     // @note: The mapping that the Java.Swing MouseEvent uses for mouse buttons.
     public static int MOUSE_BUTTON_NONE   = 0;
@@ -10,6 +12,8 @@ public class Input {
 
     private static boolean[] mouseStatePrev = new boolean[MOUSE_BUTTON_COUNT];
     private static boolean[] mouseState     = new boolean[MOUSE_BUTTON_COUNT];
+
+    private static ArrayList<Character> keysTyped = new ArrayList<>();
 
     private static int mouseX = 0;
     private static int mouseY = 0;
@@ -34,10 +38,19 @@ public class Input {
                     mouseX = e.mouseX;
                     mouseY = e.mouseY;
                 } break;
+                case WindowInputEventType.KEY_TYPED: {
+                    keysTyped.add(e.key);
+                } break;
             }
 
             e = Window.getNextInputEvent();
         }
+
+    }
+
+    public static char getKeyTyped() {
+        if(keysTyped.isEmpty()) return 0;
+        return keysTyped.removeFirst();
     }
 
     public static int getMouseX() { return mouseX; }

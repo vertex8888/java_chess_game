@@ -1,9 +1,10 @@
 package game;
 
 import java.awt.*;
+import game.Utils.Log;
 
 public class Game {
-    public static final int SCREEN_WIDTH  = 1024;
+    public static final int SCREEN_WIDTH  = 620;
     public static final int SCREEN_HEIGHT = 768;
     public static final double TARGET_FPS = 60.0;
 
@@ -70,6 +71,8 @@ public class Game {
         board[move.fromY][move.fromX] = null;
     }
 
+    static String fieldText = "username";
+
     static void update() {
         Player currPlayer = whitePlayer;
         if(currTurn == Piece.COLOR_BLACK) currPlayer = blackPlayer;
@@ -84,6 +87,13 @@ public class Game {
             if(currTurn == Piece.COLOR_WHITE) currTurn = Piece.COLOR_BLACK;
             else                              currTurn = Piece.COLOR_WHITE;
         }
+
+        Gui.reset();
+
+        Gui.setPosition(100, 100);
+        Gui.setSize(300, 46);
+        Gui.setFont(Asset.karminaFont32);
+        fieldText = Gui.textField("playButtonId", fieldText);
     }
 
     static void render() {
@@ -92,7 +102,12 @@ public class Game {
 
         currPlayer.render();
 
-        Renderer.drawText(Asset.karminaFont32, "Hellow world...", Input.getMouseX(), Input.getMouseY(), Color.red);
+        String text = "|||##??@@Hellow world...";
+        int textHeight = Renderer.getTextHeight(Asset.karminaFont32, text);
+        Renderer.drawText(Asset.karminaFont32, text, Input.getMouseX(), Input.getMouseY() + textHeight/2, Color.red);
+
+        Gui.render();
+
         Renderer.frameFlip();
     }
 }

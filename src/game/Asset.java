@@ -7,7 +7,10 @@ public class Asset {
     static BufferedImage chessBoardImg;
     static BufferedImage[][] pieceImgs = new BufferedImage[Piece.COLOR_COUNT][Piece.TYPE_COUNT];
 
+
+    public static Font karminaFont24;
     public static Font karminaFont32;
+    public static Font karminaFont64;
 
     public static void loadAll() {
         chessBoardImg = Utils.FileIO.loadImage("res/pieces_cartoon/board.png");
@@ -26,6 +29,8 @@ public class Asset {
         pieceImgs[Piece.COLOR_BLACK][Piece.TYPE_KNIGHT] = Utils.FileIO.loadImage("res/pieces_cartoon/chess-knight-black.png");
         pieceImgs[Piece.COLOR_BLACK][Piece.TYPE_PAWN]   = Utils.FileIO.loadImage("res/pieces_cartoon/chess-pawn-black.png");
 
+        karminaFont24 = Utils.FileIO.loadFont("res/fonts/karmina.ttf", 24.0f);
         karminaFont32 = Utils.FileIO.loadFont("res/fonts/karmina.ttf", 32.0f);
+        karminaFont64 = Utils.FileIO.loadFont("res/fonts/karmina.ttf", 64.0f);
     }
 }

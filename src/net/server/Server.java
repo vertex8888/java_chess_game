@@ -97,7 +97,6 @@ class Server  {
                     whiteClient.pieceColor = Piece.COLOR_WHITE;
                     blackClient.pieceColor = Piece.COLOR_BLACK;
 
-
                     NetUDP.sendPacket(socket, ServerPacket.playerColorAssign(Piece.COLOR_WHITE), whiteClient.address, whiteClient.port);
                     NetUDP.sendPacket(socket, ServerPacket.playerColorAssign(Piece.COLOR_BLACK), blackClient.address, blackClient.port);
                     NetUDP.sendPacket(socket, ServerPacket.playerTurn(board), whiteClient.address, whiteClient.port);

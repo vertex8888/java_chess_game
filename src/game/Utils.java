@@ -183,15 +183,26 @@ public class Utils {
             targetTime = target;
         }
 
+        public void start() {
+            startTimeNano = System.nanoTime();
+            targetTime = Double.POSITIVE_INFINITY;
+        }
+
         public void restart() {
             startTimeNano = System.nanoTime();
         }
 
-        public boolean hasEnded() {
+        public double getTime() {
             long timeElapsedNano = System.nanoTime() - startTimeNano;
             double time = (double)timeElapsedNano/1_000_000_000.0; // nanoseconds to just seconds
-            return(time > targetTime);
+            return time;
         }
+
+        public boolean hasEnded() {
+            return(getTime() > targetTime);
+        }
+
+
 
     }
 }

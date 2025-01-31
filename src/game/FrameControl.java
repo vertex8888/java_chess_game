@@ -6,6 +6,7 @@ public class FrameControl {
 
     static long lastFrameSleepMS;
     static double lastFrameTime;
+    static double timePassed;
 
     public static void init() {
         startTimeNano = System.nanoTime();
@@ -34,7 +35,13 @@ public class FrameControl {
         lastFrameSleepMS = sleepMS;
         lastFrameTime    = frameTime;
 
+        timePassed += frameTime;
+
         startTimeNano = System.nanoTime();
+    }
+
+    public static double getTime() {
+        return timePassed;
     }
 
     public static String getInfoString() {

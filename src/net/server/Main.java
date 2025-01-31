@@ -10,7 +10,7 @@ import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-        Window.init("Server", 500, 500);
+        Window.init("Server", 700, 900);
 
         Renderer.init();
         FrameControl.init();
@@ -31,7 +31,7 @@ public class Main {
 
             if(currentPacket != null) server.processCurrentPacket(currentPacket);
 
-            Renderer.clearBackground(Color.blue);
+            Renderer.clearBackground(Color.black);
             Renderer.frameFlip();
         }
     }

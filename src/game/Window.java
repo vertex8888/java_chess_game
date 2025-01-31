@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import game.Utils.Log;
 
 public class Window {
     static JFrame frame;
@@ -39,8 +40,8 @@ public class Window {
     // JPanel Listener Components
     //
     static class KeyboardInput implements KeyListener {
-        public void keyTyped(KeyEvent e) {}
-        public void keyPressed(KeyEvent e) {}
+        public void keyTyped(KeyEvent e)    { WindowInputManager.pushKeyTypedEvent(e.getKeyChar()); }
+        public void keyPressed(KeyEvent e)  {}
         public void keyReleased(KeyEvent e) {}
     }
 
@@ -75,12 +76,15 @@ class WindowInputEventType {
     static final int MOUSE_BUTTON_PRESSED  = 1;
     static final int MOUSE_BUTTON_RELEASED = 2;
     static final int MOUSE_NEW_POSITION    = 3;
+
+    static final int KEY_TYPED             = 4;
 }
 
 class WindowInputEvent {
     int type;
     int mouseButton;
     int mouseX, mouseY;
+    char key;
 }
 
 class WindowInputManager {
@@ -107,6 +111,14 @@ class WindowInputManager {
         e.type       = WindowInputEventType.MOUSE_NEW_POSITION;
         e.mouseX     = x;
         e.mouseY     = y;
+
+        pushInputEvent(e);
+    }
+
+    static void pushKeyTypedEvent(char key) {
+        WindowInputEvent e = new WindowInputEvent();
+        e.type = WindowInputEventType.KEY_TYPED;
+        e.key  = key;
 
         pushInputEvent(e);
     }
