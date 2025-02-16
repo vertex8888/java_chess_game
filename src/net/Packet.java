@@ -1,6 +1,5 @@
 package net;
 
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import game.Utils.ByteBuff;
 import net.server.ServerInfo;

@@ -6,13 +6,8 @@ import net.server.ServerInfo;
 import net.Packet;
 
 public class ClientPacket {
-    public static final int CLIENT_PACKET_TYPE_INVALID         = 0;
-    public static final int CLIENT_PACKET_TYPE_MAKE_CONNECTION = 1;
-    public static final int CLIENT_PACKET_TYPE_CHECK_PING      = 2;
-    public static final int CLIENT_PACKET_TYPE_MOVE            = 3;
-
-    public static Packet makeConnection() { return(new Packet(CLIENT_PACKET_TYPE_MAKE_CONNECTION)); }
-    public static Packet checkPing()      { return(new Packet(CLIENT_PACKET_TYPE_CHECK_PING)); }
+    public static final int CLIENT_PACKET_TYPE_NONE = 0;
+    public static final int CLIENT_PACKET_TYPE_MOVE = 1;
 
     public static Packet move(PlayerMove move) {
         Packet packet = new Packet(CLIENT_PACKET_TYPE_MOVE);

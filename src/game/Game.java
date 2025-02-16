@@ -1,8 +1,5 @@
 package game;
 
-import java.awt.*;
-import game.Utils.Log;
-
 public class Game {
     public static final int SCREEN_WIDTH  = 620;
     public static final int SCREEN_HEIGHT = 768;
@@ -18,7 +15,7 @@ public class Game {
     static Player whitePlayer, blackPlayer;
     static int currTurn;
 
-    private static void initBoard() {
+    public static Piece[][] createBoard() {
         Piece WHITE_KING   = new Piece(Piece.COLOR_WHITE, Piece.TYPE_KING);
         Piece WHITE_QUEEN  = new Piece(Piece.COLOR_WHITE, Piece.TYPE_QUEEN);
         Piece WHITE_ROOK   = new Piece(Piece.COLOR_WHITE, Piece.TYPE_ROOK);
@@ -33,7 +30,7 @@ public class Game {
         Piece BLACK_KNIGHT = new Piece(Piece.COLOR_BLACK, Piece.TYPE_KNIGHT);
         Piece BLACK_PAWN   = new Piece(Piece.COLOR_BLACK, Piece.TYPE_PAWN);
 
-        Piece[][] tempBoard = {
+        Piece[][] boardResult = {
                 {BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK},
                 {BLACK_PAWN, BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN,  BLACK_PAWN, BLACK_PAWN,   BLACK_PAWN,   BLACK_PAWN},
                 {null,       null,         null,         null,        null,       null,         null,         null      },
@@ -44,18 +41,11 @@ public class Game {
                 {WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK}
         };
 
-        Piece[][] testBoard = {
-                {null,       null,         null,         null,        BLACK_KING, null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        null,       null,         null,         null},
-                {null,       null,         null,         null,        WHITE_KING, null,         null,         null}
-        };
+        return boardResult;
+    }
 
-        board = tempBoard;
+    static void initBoard() {
+        board = createBoard();
 
         whitePlayer = new Player(board, Piece.COLOR_WHITE);
         blackPlayer = new Player(board, Piece.COLOR_BLACK);
@@ -71,7 +61,6 @@ public class Game {
         board[move.fromY][move.fromX] = null;
     }
 
-    static String fieldText = "username";
 
     static void update() {
         Player currPlayer = whitePlayer;
@@ -87,13 +76,6 @@ public class Game {
             if(currTurn == Piece.COLOR_WHITE) currTurn = Piece.COLOR_BLACK;
             else                              currTurn = Piece.COLOR_WHITE;
         }
-
-        Gui.reset();
-
-        Gui.setPosition(100, 100);
-        Gui.setSize(300, 46);
-        Gui.setFont(Asset.karminaFont32);
-        fieldText = Gui.textField("playButtonId", fieldText);
     }
 
     static void render() {
@@ -101,10 +83,6 @@ public class Game {
         if(currTurn == Piece.COLOR_BLACK) currPlayer = blackPlayer;
 
         currPlayer.render();
-
-        String text = "|||##??@@Hellow world...";
-        int textHeight = Renderer.getTextHeight(Asset.karminaFont32, text);
-        Renderer.drawText(Asset.karminaFont32, text, Input.getMouseX(), Input.getMouseY() + textHeight/2, Color.red);
 
         Gui.render();
 

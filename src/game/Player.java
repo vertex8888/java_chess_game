@@ -13,6 +13,11 @@ public class Player {
     int grabX, grabY;
     Piece pieceGrabbed;
 
+    public Player(Piece[][] gameBoard, int color) {
+        updateBoard(gameBoard);
+        pieceColor = color;
+    }
+
     public void flipBoard() {
         for(int y = 0; y < 4; y += 1) {
             for(int x = 0; x < 8; x += 1) {
@@ -23,23 +28,7 @@ public class Player {
         }
     }
 
-    public Player(Piece[][] gameBoard, int color) {
-        for(int y = 0; y < 8; y += 1) {
-            for(int x = 0; x < 8; x += 1) {
-                if(gameBoard[y][x] == null) {
-                    board[y][x] = null;
-                    continue;
-                }
-                board[y][x] = new Piece(gameBoard[y][x].color, gameBoard[y][x].type);
-            }
-        }
-
-        if(color == Piece.COLOR_BLACK) flipBoard();
-
-        pieceColor = color;
-    }
-
-    void updateBoard(Piece[][] gameBoard) {
+    public void updateBoard(Piece[][] gameBoard) {
         for(int y = 0; y < 8; y += 1) {
             for(int x = 0; x < 8; x += 1) {
                 if(gameBoard[y][x] == null) {
@@ -51,6 +40,44 @@ public class Player {
         }
 
         if(pieceColor == Piece.COLOR_BLACK) flipBoard();
+    }
+
+
+    //
+    // @update
+    //
+    public PlayerMove update() {
+        PlayerMove theMove = null;
+
+        switch(fsm.currState) {
+            case "DORMANT": {
+                boolean isPressed  = Input.isMouseButtonPressed(Input.MOUSE_BUTTON_LEFT);
+                if(isPressed && isGrabOK()) {
+                    grabPiece();
+                    fsm.set("MOVING_PIECE");
+                }
+
+            } break;
+            case "MOVING_PIECE": {
+                boolean isReleased = Input.isMouseButtonReleased(Input.MOUSE_BUTTON_LEFT);
+                if(isReleased) {
+                    if(isMoveOK()) {
+                        theMove = movePiece();
+                    }
+                    else {
+                        returnPiece();
+                    }
+
+                    fsm.set("DORMANT");
+                }
+
+            } break;
+            default: {
+                fsm.invalidState();
+            }
+        }
+
+        return theMove;
     }
 
     boolean checkMouseOnBoard() {
@@ -99,7 +126,9 @@ public class Player {
 
         if(newX == grabX && newY == grabY) return false;
 
-        if(board[newY][newX] != null) return false;
+        Piece pieceUnderMouse = board[newY][newX];
+        if(pieceUnderMouse == null) return true;
+        if(pieceUnderMouse.color == pieceColor) return false;
 
         return true;
     }
@@ -123,41 +152,9 @@ public class Player {
         return move;
     }
 
-
-    public PlayerMove update() {
-        PlayerMove theMove = null;
-
-        switch(fsm.currState) {
-            case "DORMANT": {
-                boolean isPressed  = Input.isMouseButtonPressed(Input.MOUSE_BUTTON_LEFT);
-                if(isPressed && isGrabOK()) {
-                    grabPiece();
-                    fsm.set("MOVING_PIECE");
-                }
-
-            } break;
-            case "MOVING_PIECE": {
-                boolean isReleased = Input.isMouseButtonReleased(Input.MOUSE_BUTTON_LEFT);
-                if(isReleased) {
-                    if(isMoveOK()) {
-                        theMove = movePiece();
-                    }
-                    else {
-                        returnPiece();
-                    }
-
-                    fsm.set("DORMANT");
-                }
-
-            } break;
-            default: {
-                fsm.invalidState();
-            }
-        }
-
-        return theMove;
-    }
-
+    //
+    // @render
+    //
     public void render() {
         Color bgColor = new Color(0x222222);
         Renderer.clearBackground(bgColor);

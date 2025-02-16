@@ -9,6 +9,58 @@ import net.Packet;
 
 public class ServerPacket {
 
+    public static final int SERVER_PACKET_TYPE_NONE                = 0;
+    public static final int SERVER_PACKET_TYPE_PLAYER_TURN         = 1;
+    public static final int SERVER_PACKET_TYPE_PLAYER_MOVE_OK      = 2;
+    public static final int SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN = 3;
+
+    //
+    // Packet Player Turn
+    //
+    public static Packet playerTurn(Piece[][] board) {
+        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_TURN);
+        packetWriteChessBoard(packet, board);
+        return packet;
+    }
+
+    public static Piece[][] playerTurn(Packet packet) {
+        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_TURN);
+        return packetReadChessBoard(packet);
+    }
+
+    //
+    // Player move ok
+    //
+    public static Packet playerMoveOk(Piece[][] board) {
+        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_MOVE_OK);
+        packetWriteChessBoard(packet, board);
+        return packet;
+    }
+
+    public static Piece[][] playerMoveOk(Packet packet) {
+        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_MOVE_OK);
+        return packetReadChessBoard(packet);
+    }
+
+
+    //
+    // Color assign
+    //
+    public static Packet playerColorAssign(int colorValue) {
+        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN);
+        packet.writeInt(colorValue);
+
+        return packet;
+    }
+
+    public static int playerColorAssign(Packet packet) {
+        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN);
+        return packet.readInt();
+    }
+
+    //
+    //
+    //
     private static void packetWriteChessBoard(Packet packet, Piece[][] board) {
         for(int y = 0; y < 8; y += 1) {
             for(int x = 0; x < 8; x += 1) {
@@ -41,60 +93,4 @@ public class ServerPacket {
 
         return board;
     }
-
-    public static final int SERVER_PACKET_TYPE_NONE                = 0;
-    public static final int SERVER_PACKET_TYPE_CONNECTION_OK       = 1;
-    public static final int SERVER_PACKET_TYPE_PING_OK             = 2;
-    public static final int SERVER_PACKET_TYPE_PLAYER_TURN         = 3;
-    public static final int SERVER_PACKET_TYPE_PLAYER_MOVE_OK      = 4;
-    public static final int SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN = 5;
-
-
-    public static Packet connectionOk() { return new Packet(SERVER_PACKET_TYPE_CONNECTION_OK); }
-    public static Packet pingOk()       { return new Packet(SERVER_PACKET_TYPE_PING_OK); }
-
-
-    //
-    // Packet Player Turn
-    //
-    public static Packet playerTurn(Piece[][] board) {
-        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_TURN);
-        packetWriteChessBoard(packet, board);
-        return packet;
-    }
-
-    public static Piece[][] playerTurn(Packet packet) {
-        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_TURN);
-        return packetReadChessBoard(packet);
-    }
-
-    //
-    // Player move ok
-    //
-    public static Packet playerMoveOk(Piece[][] board) {
-        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_MOVE_OK);
-        packetWriteChessBoard(packet, board);
-        return packet;
-    }
-
-    public static Piece[][] playerMoveOk(Packet packet) {
-        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_MOVE_OK);
-        return packetReadChessBoard(packet);
-    }
-
-    //
-    // Color assign
-    //
-    public static Packet playerColorAssign(int colorValue) {
-        Packet packet = new Packet(SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN);
-        packet.writeInt(colorValue);
-
-        return packet;
-    }
-
-    public static int playerColorAssign(Packet packet) {
-        assert(packet.type == SERVER_PACKET_TYPE_PLAYER_COLOR_ASSIGN);
-        return packet.readInt();
-    }
-
 }
